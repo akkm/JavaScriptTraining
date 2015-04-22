@@ -13,6 +13,12 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       //   expect(msg).to.equal('resolved!');
       //   testDone();
       // });
+
+      promise.then(function(msg){
+        expect(msg).to.equal('resolved!');
+        testDone();
+      });
+
     });
 
 
@@ -26,7 +32,10 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       // testDone();
 
       // ここにコードを記述してください。
-
+      promise.catch(function(msg){
+        expect(msg).to.equal('rejected!');
+        testDone();
+      });
 
     });
 
@@ -38,7 +47,7 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       var promise3 = createWaitPromise(messageFragments[2], 30);
 
       // 作成した promise を promise 変数に代入してください。
-      var promise = 'change me!';
+      var promise = Promise.all([promise1, promise2, promise3]);
 
 
       return expect(promise).to.eventually.deep.equal(messageFragments);
@@ -52,7 +61,7 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       var promise3 = createWaitPromise(messageFragments[2], 30);
 
       // 作成した promise を promise 変数に代入してください。
-      var promise = 'change me!';
+      var promise = Promise.race([promise1, promise2, promise3]);
 
 
       return expect(promise).to.eventually.equal(messageFragments[1]);
@@ -72,6 +81,9 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       // var promisedFriends = fetch(api + username).then(function(res) {
       //   return res.json();
       // });
+      var promisedFriends = fetch(api + username).then(function(res){
+        return res.json();
+      });
 
 
       return expect(promisedFriends).to.eventually.have.length(1)
@@ -84,7 +96,9 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       var username = 'Shen';
 
       // 作成した promise を promisedFriends 変数に代入してください。
-      var promisedFriends = 'change me!';
+      var promisedFriends = fetch(api + username).then(function(res){
+        return res.json();
+      });
 
 
       return expect(promisedFriends).to.eventually.have.length(2)
@@ -97,7 +111,27 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       var username = 'Shen';
 
       // 作成した promise を promisedFriends 変数に代入してください。
-      var promisedFriends = 'change me!';
+      var promisedFriends = fetch(api + username).then(function(res){
+        return res.json();
+      }).then(function(res){
+        var promises = [];
+
+        for(var i = 0; i < res.length; i++){
+          promises.push(fetch(api + res[i]));
+        }
+
+        return Promise.all(promises);
+      }).then(function(res){
+        var promises = [];
+
+        for(var i = 0; i < res.length; i++){
+          promises.push(res[i].json());
+        }
+
+        return Promise.all(promises);
+      }).then(function(responses){
+        return responses[1];
+      });
 
 
       return expect(promisedFriends).to.eventually.have.length(1)
@@ -140,6 +174,7 @@ describe('ステージ5（意図通りに非同期処理を利用できる）', 
       var repository = 'mixi-inc/JavaScriptTraining';
 
       // 作成した promise を mixiRepo 変数に代入してください。
+      var url = 'https://api.github.com/orgs/mixi-inc';
       var mixiRepo = 'change me!';
 
 
